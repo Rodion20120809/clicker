@@ -1,0 +1,147 @@
+#:import from_hex kivy.utils.get_color_from_hex
+#:import colormap kivy.utils.colormap
+
+
+#:set main_color "#FFF5F5"
+#:set main_color_dark "#F37C12"
+# ДОДАНО: кольори двох тем. Їх можна змінити тут, не редагуючи Python-код.
+#:set light_background "#30AFFF"
+#:set light_text "#4D6787"
+#:set light_button "#C4F7CA"
+#:set light_button_pressed "#E2B4BD"
+#:set dark_background "#464B71"
+#:set dark_text "#F2F2ED"
+#:set dark_button "#118AB2"
+#:set dark_button_pressed "#7CD5C7"
+
+
+# Спільний стиль кнопок меню
+<ButtonMenu@Button>:
+    font_size: "20sp"
+    size_hint: 1, 0.15
+    background_normal: ''
+    # ДОДАНО: кольори кнопки залежать від вибраної теми.
+    background_color: from_hex(light_button) if app.theme == "light" else from_hex(dark_button)
+    color: from_hex(light_text) if app.theme == "light" else from_hex(dark_text)
+    on_press:
+        # ДОДАНО: колір кнопки під час натискання для обох тем.
+        self.background_color = from_hex(light_button_pressed) if app.theme == "light" else from_hex(dark_button_pressed)
+    on_release:
+        # ДОДАНО: повернення кольору й звук після натискання кнопки.
+        self.background_color = from_hex(light_button) if app.theme == "light" else from_hex(dark_button)
+        app.play_button_sound()
+
+
+<Widget>:
+    font_name: 'assets/fonts/FreckleFace-Regular.ttf'
+
+# ДОДАНО: фон екрана гри змінюється разом із темою.
+<Screen>:
+    canvas.before:
+        Color:
+            rgba: from_hex(light_background) if app.theme == "light" else from_hex(dark_background)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+
+# ДОДАНО: колір тексту для світлої та темної тем.
+<Label>:
+    color: from_hex(light_text) if app.theme == "light" else from_hex(dark_text)
+
+
+
+<MenuScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        padding: "20dp"
+        spacing: "20dp"
+
+        Image:
+            source: "assets/images/img.png"
+            size_hint: 1, 0.5
+
+        Label:
+            text: "Main Menu"
+            font_size: "40sp"
+            size_hint: 1, 0.2
+
+        ButtonMenu:
+            text: "PLAY"
+            on_press: root.go_game()
+
+        ButtonMenu:
+            text: "SETTINGS"
+            on_press: root.go_settings()
+
+        ButtonMenu:
+            text: "EXIT"
+            on_press: root.exit_app()
+
+
+<GameScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        padding: "20dp"
+        spacing: "20dp"
+
+        Label:
+            text: "Game Screen"
+            font_size: "40sp"
+
+        # Ось тут треба додати динамічний текст для рахунку:
+        Label:
+            text: "Points: " + str(root.score)
+            font_size: "30sp"
+            size_hint: 1, 0.2
+
+        # Вказуємо id: fish для віджета риби
+        Fish:
+            id: fish
+            size_hint: 1, 0.65
+
+        ButtonMenu:
+            text: "Back to Menu"
+            on_press: root.go_menu()
+
+        # Вказуємо id: level_complete для напису перемоги
+        Label:
+            id: level_complete
+            text: "LEVEL COMPLETE!"
+            font_size: "35sp"
+            color: 0, 1, 0, 1
+            opacity: 0
+
+
+<SettingsScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        padding: "20dp"
+        spacing: "20dp"
+
+        Label:
+            text: "Settings"
+            font_size: "40sp"
+            size_hint: 1, 0.2
+
+        # ДОДАНО: кнопки вибору світлої або темної теми.
+        ButtonMenu:
+            text: "LIGHT THEME"
+            on_press: app.set_theme("light")
+
+        ButtonMenu:
+            text: "DARK THEME"
+            on_press: app.set_theme("dark")
+
+        # ДОДАНО: кнопки вибору одного з двох фонових треків.
+        ButtonMenu:
+            text: "MUSIC 1"
+            on_press: app.play_music("Path to Lake Land.ogg")
+
+        ButtonMenu:
+            text: "MUSIC 2"
+            on_press: app.play_music("TownTheme.mp3")
+
+        ButtonMenu:
+            text: "Back to Menu"
+            on_press: root.go_menu()
